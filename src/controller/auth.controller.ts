@@ -1,9 +1,10 @@
+//Está diseñado para gestionar la autenticación de usuarios, incluyendo el registro, inicio de sesión, autorización y cierre de sesión. 
 import { Request, Response } from "express";
 import bcryptjs from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/user.entity";
-import { sendConfirmationEmail } from "../utils/mailer";
+//import { sendConfirmationEmail } from "../utils/mailer";
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -27,7 +28,7 @@ export const Register = async (req: Request, res: Response) => {
             "access_secret",
             { expiresIn: 7 * 24 * 60 * 60 * 1000 }
         );
-
+        //console.log(accessToken);
         //const hshedPassword = await bcryptjs.hash(password, 10);
         const user = await userRepository.save({
             names,
@@ -35,12 +36,12 @@ export const Register = async (req: Request, res: Response) => {
             email,
             isActive: false, // El usuario no está activo hasta que se verifique el token
             registrationDate: new Date(),
-            confirmationToken: accessToken.substring(0, 24),
+            confirmationToken: accessToken.substring(130, 160),  
             confirmationTokenExpiration: new Date(
                 new Date().getTime() + 5 * 24 * 60 * 60 * 1000
             ),
         });
-        sendConfirmationEmail(names, email, accessToken.substring(0, 24));
+        //sendConfirmationEmail(names, email, accessToken.substring(0, 24));
         res.send(user);
     } catch (error) {
         console.log(error);

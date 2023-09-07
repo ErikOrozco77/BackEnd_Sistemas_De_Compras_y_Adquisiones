@@ -1,7 +1,8 @@
+//es un controlador para verificar y activar la cuenta de un usuario mediante un token de confirmación
 import { Request, Response } from "express";
 import bcryptjs from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
-import { AppDataSource } from "../data-source";
+import { AppDataSource } from "../data-source"; 
 import { User } from "../entities/user.entity";
 
 const userRepository = AppDataSource.getRepository(User);
