@@ -1,4 +1,3 @@
-//es un controlador para verificar y activar la cuenta de un usuario mediante un token de confirmación
 import { Request, Response } from "express";
 import bcryptjs from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";

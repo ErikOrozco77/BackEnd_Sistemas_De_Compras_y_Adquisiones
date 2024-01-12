@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { CatRoles } from "./catRoles.entity";
+import { Proveedor } from "./proveedor.entity";
 
 @Entity()
 export class User {
@@ -29,4 +30,8 @@ export class User {
 
     @ManyToOne(() => CatRoles, { eager: true })
     rol!: CatRoles;
+
+    @Column()
+    rfc!: string;
+
 }

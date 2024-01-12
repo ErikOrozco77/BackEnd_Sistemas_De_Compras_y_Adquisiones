@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    OneToOne,
+} from "typeorm";
 import { CatSexo } from "./catSexo.entity";
 import { CatOrigen } from "./catOrigen.entity";
 import { CatEntidadFederativa } from "./catEntidadFederativa.entity";
@@ -7,6 +14,7 @@ import { CatDomicilioVialidad } from "./catDomicilioVialidad.entity";
 import { CatDomicilioTipoAsentamiento } from "./catDomicilioTipoAsentamiento.entity";
 import { CatDomicilioEntidadFederativa } from "./catDomicilioEntidadFederativa.entity";
 import { CatRepresentanteLegalTipoAcreditacion } from "./catRepresentanteLegalTipoAcreditacion.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class Proveedor {
@@ -123,4 +131,10 @@ export class Proveedor {
 
     @Column()
     telefono!: string;
+
+    @Column()
+    user_id!: number;
+
+
+
 }
