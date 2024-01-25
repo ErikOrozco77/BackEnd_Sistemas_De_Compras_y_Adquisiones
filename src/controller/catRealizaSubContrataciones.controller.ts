@@ -6,7 +6,6 @@ const catRealizaSubcontratacionesRepository = AppDataSource.getRepository(CatRea
 export const getcatRealizaSubcontratacionesList = async (req: Request, res: Response) => {
   try {
     const user = await catRealizaSubcontratacionesRepository.find()
-    console.log(user)
     res.status(200).json(user);
   } catch (error) {
     console.error('Error al obtener la lista de CatRealizaSubcontrataciones:', error);

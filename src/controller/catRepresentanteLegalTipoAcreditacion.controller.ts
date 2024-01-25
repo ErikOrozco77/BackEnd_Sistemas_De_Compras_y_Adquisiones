@@ -6,7 +6,6 @@ const catRepresentanteLegalTipoAcreditacionRepository = AppDataSource.getReposit
 export const getcatRepresentanteLegalTipoAcreditacionList = async (req: Request, res: Response) => {
   try {
     const user = await catRepresentanteLegalTipoAcreditacionRepository.find()
-    console.log(user)
     res.status(200).json(user);
   } catch (error) {
     console.error('Error al obtener la lista de CatRepresentanteLegalTipoAcreditacion:', error);

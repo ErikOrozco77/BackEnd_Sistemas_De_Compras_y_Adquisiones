@@ -15,6 +15,7 @@ import { CatDomicilioTipoAsentamiento } from "./catDomicilioTipoAsentamiento.ent
 import { CatDomicilioEntidadFederativa } from "./catDomicilioEntidadFederativa.entity";
 import { CatRepresentanteLegalTipoAcreditacion } from "./catRepresentanteLegalTipoAcreditacion.entity";
 import { User } from "./user.entity";
+import { CatGiro } from "./catGiro.entity";
 
 @Entity()
 export class Proveedor {
@@ -32,6 +33,9 @@ export class Proveedor {
 
     @ManyToOne(() => CatSexo, { eager: true })
     CatSexo!: CatSexo;
+
+    @ManyToOne(() => CatGiro, { eager: true })
+    CatGiro!: CatGiro;
 
     @Column({ name: "razon_social" })
     razonSocial!: string;

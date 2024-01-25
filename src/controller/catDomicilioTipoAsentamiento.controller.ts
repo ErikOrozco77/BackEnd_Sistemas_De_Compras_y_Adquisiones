@@ -6,7 +6,6 @@ const catDomicilioTipoAsentamientoRepository = AppDataSource.getRepository(CatDo
 export const getcatDomicilioTipoAsentamientoList = async (req: Request, res: Response) => {
   try {
     const user = await catDomicilioTipoAsentamientoRepository.find()
-    console.log(user)
     res.status(200).json(user);
   } catch (error) {
     console.error('Error al obtener la lista de CatDomicilioTipoAsentamiento:', error);

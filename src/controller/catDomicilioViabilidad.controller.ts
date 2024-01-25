@@ -6,7 +6,6 @@ const catDomicilioVialidadRepository = AppDataSource.getRepository(CatDomicilioV
 export const getcatDomicilioVialidadList = async (req: Request, res: Response) => {
   try {
     const user = await catDomicilioVialidadRepository.find()
-    console.log(user)
     res.status(200).json(user);
   } catch (error) {
     console.error('Error al obtener la lista de CatDomicilioVialidad:', error);

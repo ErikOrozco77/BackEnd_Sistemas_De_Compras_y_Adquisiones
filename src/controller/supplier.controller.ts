@@ -49,6 +49,7 @@ export const RegisterProveedor = async (req: Request, res: Response) => {
             , catDomicilioTipoAsentamientoId
             , catDomicilioEntidadFederativaId
             , catRepresentanteLegalTipoAcreditacionId
+            , catGiroId
             , user_id } = req.body;
         const proveedorExistente = await proveedorRepository.findOne({
             where: {
@@ -98,6 +99,7 @@ export const RegisterProveedor = async (req: Request, res: Response) => {
         nuevoProveedor.CatDomicilioTipoAsentamiento = catDomicilioTipoAsentamientoId;
         nuevoProveedor.CatDomicilioEntidadFederativa = catDomicilioEntidadFederativaId;
         nuevoProveedor.CatRepresentanteLegalTipoAcreditacion = catRepresentanteLegalTipoAcreditacionId;
+        nuevoProveedor.CatGiro = catGiroId;
         nuevoProveedor.user_id = user_id;
 
         await proveedorRepository.save(nuevoProveedor);
@@ -105,9 +107,7 @@ export const RegisterProveedor = async (req: Request, res: Response) => {
         res.status(201).json({ message: "Proveedor registrado con éxito" });
 
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: "Error al registrar el proveedor" });
-
     }
 
 };
@@ -153,7 +153,9 @@ export const UpdateProveedor = async (req: Request, res: Response) => {
             , catDomicilioVialidadId
             , catDomicilioTipoAsentamientoId
             , catDomicilioEntidadFederativaId
-            , catRepresentanteLegalTipoAcreditacionId, otherFields } = req.body;
+            , catRepresentanteLegalTipoAcreditacionId
+            , catGiroId
+            , otherFields } = req.body;
 
         const proveedorExistente = await proveedorRepository.findOne({
             where: [
@@ -202,13 +204,13 @@ export const UpdateProveedor = async (req: Request, res: Response) => {
             proveedorExistente.CatDomicilioVialidad = catDomicilioVialidadId;
             proveedorExistente.CatDomicilioTipoAsentamiento = catDomicilioTipoAsentamientoId;
             proveedorExistente.CatEntidadFederativa = catEntidadFederativaId;
+            proveedorExistente.CatGiro = catGiroId;
             proveedorExistente.CatRepresentanteLegalTipoAcreditacion = catRepresentanteLegalTipoAcreditacionId;
 
             await proveedorRepository.save(proveedorExistente);
             res.status(200).json({ message: "Proveedor actualizado con éxito" });
         }
     } catch (error) {
-        console.error("Error al actualizar el proveedor:", error);
         res.status(500).json({ error: "Error al actualizar el proveedor" });
     }
 };
@@ -226,13 +228,52 @@ export const GetProveedorByUserId = async (req: Request, res: Response) => {
         }
         res.status(200).json(proveedor);
     } catch (error) {
-        console.error("Error al obtener datos prellenados del proveedor:", error);
         res.status(500).json({ error: "Error al obtener datos prellenados" });
     }
 
 
 };
 
+export const GetINEByAdmin = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+        const ineFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `INE_${userId}.pdf`);
+
+        if (!fs.existsSync(ineFilePath)) {
+            return res.status(404).json({ error: "Archivo INE no encontrado" });
+        }
+
+        const ineFileContent = fs.readFileSync(ineFilePath);
+
+        res.setHeader('Content-Disposition', `attachment; filename=INE_${userId}.pdf`);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(ineFileContent);
+        console.log('Ruta del archivo INE:', ineFilePath);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener archivo INE" });
+    }
+};
+
+export const GetConstanciaByAdmin = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+        const constanciaFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `Constancia_${userId}.pdf`);
+
+        if (!fs.existsSync(constanciaFilePath)) {
+            return res.status(404).json({ error: "Archivo Constancia no encontrado" });
+        }
+
+        const constanciaFileContent = fs.readFileSync(constanciaFilePath);
+
+        res.setHeader('Content-Disposition', `attachment; filename=Constancia_${userId}.pdf`);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(constanciaFileContent);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener archivo Constancia" });
+    }
+};
+
+//Sube los dos Archivos 
 export const UploadFiles = async (req: Request, res: Response) => {
     try {
         const userId = req.body.user_id;
@@ -280,56 +321,138 @@ export const UploadFiles = async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "Archivos PDF subidos con éxito" });
     } catch (error) {
-        console.error("Error al subir archivos PDF:", error);
         res.status(500).json({ error: "Error al subir archivos PDF" });
     }
 };
 
-
-
-export const GetINEByUserId = async (req: Request, res: Response) => {
+// Descargar el archivo INE
+export const GetINEInfoByUserId = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
         const ineFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `INE_${userId}.pdf`);
 
-        if (!fs.existsSync(ineFilePath)) {
-            return res.status(404).json({ error: "Archivo INE no encontrado" });
+        const fileExists = fs.existsSync(ineFilePath);
+
+        if (!fileExists) {
+            return res.status(404).json({ error: "Archivo INE no encontrado", exists: false });
         }
 
-        const ineFileContent = fs.readFileSync(ineFilePath);
-
-        res.setHeader('Content-Disposition', `attachment; filename=INE_${userId}.pdf`);
+        const fileContent = fs.readFileSync(ineFilePath, 'binary');
+        res.setHeader('Content-Length', fileContent.length);
         res.setHeader('Content-Type', 'application/pdf');
-        res.send(ineFileContent);
-        console.log('Ruta del archivo INE:', ineFilePath);
+        res.setHeader('Content-Disposition', `attachment; filename=INE_${userId}.pdf`);
+        res.status(200).end(fileContent, 'binary');
     } catch (error) {
-        console.error("Error al obtener archivo INE:", error);
-        res.status(500).json({ error: "Error al obtener archivo INE" });
+        res.status(500).json({ error: "Error al obtener información y descargar archivo INE" });
     }
 };
 
-export const GetConstanciaByUserId = async (req: Request, res: Response) => {
+// Descargar el archivo Constancia
+export const GetConstanciaInfoByUserId = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
         const constanciaFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `Constancia_${userId}.pdf`);
 
-        if (!fs.existsSync(constanciaFilePath)) {
-            return res.status(404).json({ error: "Archivo Constancia no encontrado" });
+        const fileExists = fs.existsSync(constanciaFilePath);
+
+        if (!fileExists) {
+            return res.status(404).json({ error: "Archivo Constancia no encontrado", exists: false });
         }
 
-        const constanciaFileContent = fs.readFileSync(constanciaFilePath);
-
-        res.setHeader('Content-Disposition', `attachment; filename=Constancia_${userId}.pdf`);
+        const fileContent = fs.readFileSync(constanciaFilePath, 'binary');
+        res.setHeader('Content-Length', fileContent.length);
         res.setHeader('Content-Type', 'application/pdf');
-        res.send(constanciaFileContent);
-        console.log('Ruta del archivo Constancia:', constanciaFilePath);
+        res.setHeader('Content-Disposition', `attachment; filename=Constancia_${userId}.pdf`);
+        res.status(200).end(fileContent, 'binary');
     } catch (error) {
-        console.error("Error al obtener archivo Constancia:", error);
-        res.status(500).json({ error: "Error al obtener archivo Constancia" });
+        res.status(500).json({ error: "Error al obtener información y descargar archivo Constancia" });
     }
 };
 
 
+// Reemplazar los archivos INE
+export const ReplaceINE = async (req: Request, res: Response) => {
+    try {
+        const userId = req.body.user_id;
+        const files = req.files;
 
+        if (!files || !('ine' in files)) {
+            return res.status(400).json({ error: "No se ha proporcionado el archivo INE" });
+        }
+
+        const ineFile = files.ine[0];
+
+        if (ineFile.mimetype !== 'application/pdf') {
+            return res.status(400).json({ error: "El archivo INE debe ser de tipo PDF" });
+        }
+
+        const ineFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `INE_${userId}.pdf`);
+        fs.writeFileSync(ineFilePath, ineFile.buffer, 'binary');
+
+        res.status(200).json({ message: "Archivo INE reemplazado con éxito" });
+    } catch (error) {
+        res.status(500).json({ error: "Error al reemplazar archivo INE" });
+    }
+};
+
+// Reemplazar el archivo Constancia
+export const ReplaceConstancia = async (req: Request, res: Response) => {
+    try {
+        const userId = req.body.user_id;
+        const files = req.files;
+
+        if (!files || !('constancia' in files)) {
+            return res.status(400).json({ error: "No se ha proporcionado el archivo Constancia" });
+        }
+
+        const constanciaFile = files.constancia[0];
+
+        if (constanciaFile.mimetype !== 'application/pdf') {
+            return res.status(400).json({ error: "El archivo Constancia debe ser de tipo PDF" });
+        }
+
+        const constanciaFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `Constancia_${userId}.pdf`);
+        fs.writeFileSync(constanciaFilePath, constanciaFile.buffer, 'binary');
+
+        res.status(200).json({ message: "Archivo Constancia reemplazado con éxito" });
+    } catch (error) {
+        res.status(500).json({ error: "Error al reemplazar archivo Constancia" });
+    }
+};
+
+export const DetectarArchivosAlmacenados = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+
+        const ineFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `INE_${userId}.pdf`);
+        const constanciaFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `Constancia_${userId}.pdf`);
+
+        const archivosAlmacenados = {
+            ine: fs.existsSync(ineFilePath),
+            constancia: fs.existsSync(constanciaFilePath),
+        };
+
+        res.status(200).json(archivosAlmacenados);
+    } catch (error) {
+        res.status(500).json({ error: "Error al detectar archivos almacenados" });
+    }
+};
+
+export const Redireccion = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.userId, 10);
+        const proveedor = await proveedorRepository.findOne({
+            where: {
+                user_id: userId
+            }
+        });
+
+        const proveedorExists = !!proveedor;
+
+        res.status(200).json({ proveedorExists });
+    } catch (error) {
+        res.status(500).json({ error: "Error al verificar la existencia del proveedor" });
+    }
+};
 
 

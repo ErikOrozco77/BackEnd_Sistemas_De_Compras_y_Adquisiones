@@ -6,7 +6,6 @@ const catDomicilioEntidadFederativaRepository = AppDataSource.getRepository(CatD
 export const getcatDomicilioEntidadFederativaList = async (req: Request, res: Response) => {
   try {
     const user = await catDomicilioEntidadFederativaRepository.find()
-    console.log(user)
     res.status(200).json(user);
   } catch (error) {
     console.error('Error al obtener la lista de CatDomicilioEntidadFederativa:', error);
