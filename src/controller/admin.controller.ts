@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Proveedor } from "../entities/proveedor.entity";
 import * as exceljs from 'exceljs';
-import * as json2csv from 'json2csv';
-
+import { Concurso } from "../entities/concurso.entity";
+const concursoRepository = AppDataSource.getRepository(Concurso);
 const proveedorRepository = AppDataSource.getRepository(Proveedor);
 
 export const GetAllProveedores = async (req: Request, res: Response) => {
@@ -25,21 +25,16 @@ export const GetAllProveedores = async (req: Request, res: Response) => {
 export const DownloadProveedoresExcel = async (req: Request, res: Response) => {
     try {
         const proveedores = await proveedorRepository.find({ relations: ['CatSexo', 'CatOrigen', 'CatEntidadFederativa', 'CatRealizaSubcontrataciones', 'CatDomicilioVialidad', 'CatDomicilioTipoAsentamiento', 'CatDomicilioEntidadFederativa', 'CatRepresentanteLegalTipoAcreditacion', 'CatGiro'] });
-
-        // Crear un libro de Excel y hoja de trabajo
+        const concursosActivos = await concursoRepository.find({ where: { isActive: true }, relations: ['proveedorGanador'] });
         const workbook = new exceljs.Workbook();
         const worksheet = workbook.addWorksheet('Proveedores');
-
-        // Definir encabezados de columnas en la primera fila
+        const worksheetConcursos = workbook.addWorksheet('Concursos');
         const columnHeaders = ['Id', 'Nombre(s)', 'Primer Apellido', 'Segundo Apellido', 'razonSocial', 'Estratificacion', 'Pais de Origen', 'RFC', 'Actividad Economica', 'Domicilio', 'N° Exterior', 'N° Interior'
             , 'Nombre Asentamiento', 'Clave de Localidad', 'Nombre Localidad', ' Clave de Municipio', 'Nombre del Municipio', 'Clave de Entidad', 'Codigo Postal', ' Pais Extranjero'
             , ' Ciudad Extranjera', ' Calle extranjera', 'Numero extranjero', 'Nombre del Representante Legal', 'Primer Apellido de Representante Legal', 'Segundo Apellido de Representante Legal'
             , 'Telefono del Representante Legal', 'Correo del Representante Legal', 'Website', 'Telefono', 'Sexo', 'Origen', 'Entidad Federativa', 'Realiza Subcontrataciones', 'Domicilio Vialidad'
             , 'Domicilio TipoAsentamiento', 'Domicilio Entidad Federativa', 'Representante Legal Tipo Acreditacion', 'Giro'];
-
         worksheet.addRow(columnHeaders);
-
-        // Agregar datos de proveedores a la hoja de trabajo
         proveedores.forEach((proveedor) => {
             const row = [
                 proveedor.id,
@@ -85,11 +80,22 @@ export const DownloadProveedoresExcel = async (req: Request, res: Response) => {
             worksheet.addRow(row);
         });
 
-        // Configurar la respuesta HTTP para descargar el archivo Excel
+        const columnHeadersConcursos = ['Id', 'Id Concurso', 'Nombre', 'Fecha de Entrega de Documentos', 'Fecha de Expedicion', 'Proveedor Ganador'];
+        worksheetConcursos.addRow(columnHeadersConcursos);
+
+        concursosActivos.forEach((concurso) => {
+            let proveedorNombre = '';
+            if (concurso.proveedorGanador && concurso.proveedorGanador.nombre) {
+                proveedorNombre = `${concurso.proveedorGanador.nombre} ${concurso.proveedorGanador.primerApellido} ${concurso.proveedorGanador.segundoApellido}`;
+            }
+            const row = [concurso.id, concurso.id_concurso, concurso.nombreDeConcurso, concurso.fechaEntregadeDocumentos, concurso.fechaExpedicion, proveedorNombre];
+            worksheetConcursos.addRow(row);
+        });
+
+
+
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename=proveedores.xlsx');
-
-        // Escribir el libro de Excel en la respuesta HTTP
         await workbook.xlsx.write(res);
         res.end();
 

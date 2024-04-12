@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Proveedor } from "../entities/proveedor.entity";
-import { log } from "console";
 import fs from "fs";
 import path from "path";
-import { createReadStream } from 'fs';
-
 
 const proveedorRepository = AppDataSource.getRepository(Proveedor);
 
@@ -273,7 +270,6 @@ export const GetConstanciaByAdmin = async (req: Request, res: Response) => {
     }
 };
 
-//Sube los dos Archivos 
 export const UploadFiles = async (req: Request, res: Response) => {
     try {
         const userId = req.body.user_id;
@@ -294,15 +290,15 @@ export const UploadFiles = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "Los archivos deben ser de tipo PDF" });
         }
 
-        // Construir las rutas de los archivos directamente en el directorio
+        
         const ineFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `INE_${userId}.pdf`);
         const constanciaFilePath = path.join("C:\\Users\\51-09794\\Desktop\\ArchivosProyectos", `Constancia_${userId}.pdf`);
 
-        // Inicializar variables con valor predeterminado
+        
         let ineFileExists = false;
         let constanciaFileExists = false;
 
-        // Verificar si el usuario ya ha subido archivos
+        
         if (fs.existsSync(ineFilePath)) {
             ineFileExists = true;
         }
@@ -315,7 +311,7 @@ export const UploadFiles = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "El usuario ya ha subido archivos previamente" });
         }
 
-        // Guardar archivos en el sistema de archivos
+        
         fs.writeFileSync(ineFilePath, ineFile.buffer, 'binary');
         fs.writeFileSync(constanciaFilePath, constanciaFile.buffer, 'binary');
 
@@ -325,7 +321,6 @@ export const UploadFiles = async (req: Request, res: Response) => {
     }
 };
 
-// Descargar el archivo INE
 export const GetINEInfoByUserId = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
@@ -347,7 +342,6 @@ export const GetINEInfoByUserId = async (req: Request, res: Response) => {
     }
 };
 
-// Descargar el archivo Constancia
 export const GetConstanciaInfoByUserId = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
@@ -369,8 +363,6 @@ export const GetConstanciaInfoByUserId = async (req: Request, res: Response) => 
     }
 };
 
-
-// Reemplazar los archivos INE
 export const ReplaceINE = async (req: Request, res: Response) => {
     try {
         const userId = req.body.user_id;
@@ -395,7 +387,6 @@ export const ReplaceINE = async (req: Request, res: Response) => {
     }
 };
 
-// Reemplazar el archivo Constancia
 export const ReplaceConstancia = async (req: Request, res: Response) => {
     try {
         const userId = req.body.user_id;

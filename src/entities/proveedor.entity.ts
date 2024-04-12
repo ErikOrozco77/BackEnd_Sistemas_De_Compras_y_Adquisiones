@@ -1,11 +1,4 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    ManyToOne,
-    JoinColumn,
-    OneToOne,
-} from "typeorm";
+import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,JoinColumn,OneToOne, OneToMany,} from "typeorm";
 import { CatSexo } from "./catSexo.entity";
 import { CatOrigen } from "./catOrigen.entity";
 import { CatEntidadFederativa } from "./catEntidadFederativa.entity";
@@ -16,11 +9,15 @@ import { CatDomicilioEntidadFederativa } from "./catDomicilioEntidadFederativa.e
 import { CatRepresentanteLegalTipoAcreditacion } from "./catRepresentanteLegalTipoAcreditacion.entity";
 import { User } from "./user.entity";
 import { CatGiro } from "./catGiro.entity";
+import{CatProveedoresConcursantes} from "./catProveedoresConcursantes.entity";
 
 @Entity()
 export class Proveedor {
     @PrimaryGeneratedColumn()
     id!: number;
+
+    @OneToMany(() => CatProveedoresConcursantes, (pc) => pc.proveedor)
+    catProveedoresConcursantes!: CatProveedoresConcursantes[];
 
     @Column({ name: "nombre" })
     nombre!: string;

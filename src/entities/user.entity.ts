@@ -34,4 +34,13 @@ export class User {
     @Column()
     rfc!: string;
 
+    @Column({ nullable: true, type: 'varchar', length: 255 })
+    resetPasswordToken!: string | null;
+
+    @Column({ nullable: true, type: 'timestamp' })
+    resetPasswordTokenExpires!: Date | null;
+
+
+
+
 }

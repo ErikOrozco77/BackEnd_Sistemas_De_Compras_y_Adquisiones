@@ -3,6 +3,7 @@ import { CatDomicilioEntidadFederativa } from '../entities/catDomicilioEntidadFe
 import { AppDataSource } from "../data-source";
 
 const catDomicilioEntidadFederativaRepository = AppDataSource.getRepository(CatDomicilioEntidadFederativa);
+
 export const getcatDomicilioEntidadFederativaList = async (req: Request, res: Response) => {
   try {
     const user = await catDomicilioEntidadFederativaRepository.find()

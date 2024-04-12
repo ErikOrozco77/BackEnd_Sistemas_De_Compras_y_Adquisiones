@@ -29,8 +29,7 @@ export const CheckUser = async (req: Request, res: Response) => {
             email: user.email,
         });
         return res.status(200).send({
-            message: "Inicio de sesion correcto",
-            data: data,
+           
         });
     } catch (error) {
         console.log(error);
